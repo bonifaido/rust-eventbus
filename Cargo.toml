@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Nandor Kracser <bonifaido@gmail.com>"]
 
 [dependencies]
-anymap = "0.11"
+anymap = "0.12"
