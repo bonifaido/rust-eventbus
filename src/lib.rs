@@ -14,8 +14,6 @@ struct TraitObject {
     pub vtable: *mut (),
 }
 
-
-
 pub struct EventBus {
     handlers: AnyMap,
 }

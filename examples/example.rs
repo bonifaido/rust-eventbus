@@ -23,4 +23,19 @@ fn main() {
     bus.register(|arg: &i32| println!("my_closure_handler {:?}", arg));
 
     bus.post(12);
+
+    bus.register(Animal::walk);
+
+    let a = Animal{ name: "cat" };
+    bus.post(a);
+}
+
+struct Animal {
+    name: &'static str
+}
+
+impl Animal {
+    pub fn walk(&self) {
+        println!("{} walks", self.name)
+    }
 }
