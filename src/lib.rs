@@ -14,11 +14,13 @@ struct TraitObject {
     pub vtable: *mut (),
 }
 
+
+
 pub struct EventBus {
     handlers: AnyMap,
 }
 
-pub struct DeadEvent(Box<dyn Any>);
+pub struct DeadEvent(pub Box<dyn Any>);
 
 struct HandlerPtr<T> {
     handler: Box<dyn Fn(&T)>,
