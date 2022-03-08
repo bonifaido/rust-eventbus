@@ -1,2 +1,2 @@
 # rust-eventbus
-Guava [EventBus](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/eventbus/EventBus.html) in Rust
+Guava [EventBus](https://github.com/google/guava/wiki/EventBusExplained) in Rust.
