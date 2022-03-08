@@ -1,29 +1,34 @@
-#![feature(raw, test)]
+// #![feature(test)]
 extern crate anymap;
-extern crate test;
+// extern crate test;
 
 use anymap::{AnyMap, Entry};
 use std::any::Any;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::mem;
-use std::raw::TraitObject;
 
-pub struct EventBus {
-    handlers: AnyMap
+#[repr(C)]
+struct TraitObject {
+    pub data: *mut (),
+    pub vtable: *mut (),
 }
 
-pub struct DeadEvent(Box<Any>);
+pub struct EventBus {
+    handlers: AnyMap,
+}
+
+pub struct DeadEvent(pub Box<dyn Any>);
 
 struct HandlerPtr<T> {
-    handler: Box<Fn(&T)>,
-    trait_object: TraitObject
+    handler: Box<dyn Fn(&T)>,
+    trait_object: TraitObject,
 }
 
 impl<T> HandlerPtr<T> {
-    fn new(handler: Box<Fn(&T)>) -> Self {
+    fn new(handler: Box<dyn Fn(&T)>) -> Self {
         let trait_object: TraitObject = unsafe { mem::transmute(&*handler) };
-        HandlerPtr{handler: handler, trait_object: trait_object}
+        HandlerPtr { handler, trait_object }
     }
 }
 
@@ -45,7 +50,7 @@ type Handlers<T> = HashSet<HandlerPtr<T>>;
 
 impl EventBus {
     pub fn new() -> EventBus {
-        EventBus{handlers: AnyMap::new()}
+        EventBus { handlers: AnyMap::new() }
     }
 
     pub fn register<T: Any, H: Fn(&T) + 'static>(&mut self, handler: H) {
@@ -53,7 +58,7 @@ impl EventBus {
         match self.handlers.entry::<Handlers<T>>() {
             Entry::Occupied(inner) => {
                 inner.into_mut().insert(handler_ptr);
-            },
+            }
             Entry::Vacant(inner) => {
                 let mut h = HashSet::new();
                 h.insert(handler_ptr);
@@ -96,7 +101,7 @@ impl EventBus {
 mod tests {
     use super::*;
     use std::sync::mpsc::{channel, Sender};
-    use test::Bencher;
+    // use test::Bencher;
 
     #[test]
     fn eventbus_dispatch() {
@@ -154,13 +159,12 @@ mod tests {
         bus.post(123123123 as u64);
     }
 
-    #[bench]
-    fn bench_single_handler(b: &mut Bencher) {
-        fn my_str_handler(_: &&str) {
-        }
-
-        let mut bus = EventBus::new();
-        bus.register(my_str_handler);
-        b.iter(|| bus.post("handle me"));
-    }
+    // #[bench]
+    // fn bench_single_handler(b: &mut Bencher) {
+    //     fn my_str_handler(_: &&str) {}
+    //
+    //     let mut bus = EventBus::new();
+    //     bus.register(my_str_handler);
+    //     b.iter(|| bus.post("handle me"));
+    // }
 }
